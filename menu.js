@@ -67,11 +67,15 @@ function showMenu (opts, i18n) {
   menu.on('select', function (label) {
     menu.y = 0
     menu.reset()
+    
+    menu.once('close', function () {
+      menuStream.unpipe(process.stdout)
+      process.stdin.unpipe(menuStream)
+      process.stdin.setRawMode(false)
+      process.stdin.end()
+    })
+    
     menu.close()
-    process.stdin.pause()
-    menuStream.unpipe(process.stdout)
-    process.stdin.unpipe(menuStream)
-    process.stdin.setRawMode(false)
   })
 
   menuStream = menu.createStream()
@@ -86,8 +90,6 @@ function showMenu (opts, i18n) {
   } else {
     process.stdin.setRawMode(true)
   }
-    
-  process.stdin.resume()
 
   return emitter
 }
